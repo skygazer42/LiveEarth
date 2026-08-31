@@ -1,0 +1,18 @@
+{
+  "name": "live-earth",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.26.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @liveearth/web dev",
+    "dev:worker": "pnpm --filter @liveearth/worker dev",
+    "build": "pnpm --filter @liveearth/domain build && pnpm --filter @liveearth/web build && pnpm --filter @liveearth/worker build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm --filter @liveearth/web lint",
+    "test": "pnpm --filter @liveearth/domain test && pnpm --filter @liveearth/web test",
+    "test:run": "pnpm --filter @liveearth/domain test:run && pnpm --filter @liveearth/web test:run"
+  }
+}

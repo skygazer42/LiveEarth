@@ -1,0 +1,15 @@
+app = "liveearth-worker"
+primary_region = "ams"
+
+[build]
+  dockerfile = "apps/worker/Dockerfile"
+
+[env]
+  LIVE_EARTH_SAMPLE_INTERVAL_SECONDS = "30"
+  LIVE_EARTH_RANKING_INTERVAL_SECONDS = "300"
+  OPENAI_VISION_MODEL = "gpt-5.6-luna"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 2
+  memory = "2048mb"

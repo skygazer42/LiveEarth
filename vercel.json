@@ -1,0 +1,6 @@
+{
+  "installCommand": "corepack pnpm install --frozen-lockfile",
+  "buildCommand": "corepack pnpm --filter @liveearth/domain build && corepack pnpm --filter @liveearth/web build",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs"
+}
