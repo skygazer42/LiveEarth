@@ -438,6 +438,24 @@
     text-transform: uppercase;
   }
 
+  .stage-location-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0 0 0.2rem;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+
+  .stage-location-button:hover,
+  .stage-location-button:focus-visible {
+    color: var(--signal-soft);
+    border-color: currentColor;
+  }
+
   .stage-caption h1 {
     max-width: 10ch;
     font-family: var(--serif);
@@ -448,6 +466,15 @@
     line-height: 0.73;
     text-wrap: balance;
     text-shadow: 0 0.05em 0.5em color-mix(in oklch, var(--ink-0) 42%, transparent);
+  }
+
+  .stage-caption h1 a {
+    transition: color 180ms ease;
+  }
+
+  .stage-caption h1 a:hover,
+  .stage-caption h1 a:focus-visible {
+    color: var(--signal-soft);
   }
 
   .stage-title {
@@ -501,6 +528,22 @@
     align-items: center;
     gap: 0.45rem;
     color: var(--paper);
+  }
+
+  .stage-coordinate {
+    padding: 0 0 0.15rem;
+    border: 0;
+    border-bottom: 1px solid color-mix(in oklch, var(--paper) 34%, transparent);
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+
+  .stage-coordinate:hover,
+  .stage-coordinate:focus-visible {
+    color: var(--paper);
+    border-color: var(--signal-soft);
   }
 
   .stage-actions {
@@ -647,7 +690,7 @@
   .ranking-row {
     position: relative;
     display: grid;
-    grid-template-columns: 2.2rem minmax(0, 1fr) 1.1rem 0.85rem;
+    grid-template-columns: 2.2rem minmax(0, 1fr) 1.1rem 4.2rem;
     gap: 0.7rem;
     align-items: center;
     width: 100%;
@@ -723,6 +766,32 @@
   }
 
   .rank-trend--up {
+    color: var(--signal-soft);
+  }
+
+  .rank-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.15rem;
+    color: var(--paper-muted);
+    font-size: 0.5rem;
+    font-weight: 620;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0.62;
+    transition: color 180ms ease, opacity 180ms ease;
+  }
+
+  .ranking-row:hover .rank-action,
+  .ranking-row:focus-visible .rank-action,
+  .ranking-row--active .rank-action {
+    color: var(--paper);
+    opacity: 1;
+  }
+
+  .ranking-row--active .rank-action {
     color: var(--signal-soft);
   }
 
@@ -822,6 +891,27 @@
     font-size: 0.62rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+  }
+
+  .globe-scene-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--paper);
+    font-size: 0.62rem;
+    font-weight: 620;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+
+  .globe-scene-link:hover,
+  .globe-scene-link:focus-visible {
+    color: var(--signal-soft);
+    border-color: currentColor;
   }
 
   .globe-canvas {
@@ -2172,7 +2262,7 @@
     .director-note { grid-template-columns: 6rem 1fr; }
     .ranking-rail { padding-inline: 1.3rem; }
     .ranking-row { grid-template-columns: 1.8rem minmax(0, 1fr) 1rem; }
-    .rank-chevron { display: none; }
+    .rank-action { display: none; }
 
     .channel-ranking li {
       grid-template-columns: 2.5rem 9rem minmax(12rem, 1fr) 6rem 3rem;
@@ -2248,7 +2338,7 @@
       font-size: 0.73rem;
     }
 
-    .stage-meta span:first-child { display: none; }
+    .stage-coordinate { display: none; }
 
     .stage-actions {
       right: 1rem;

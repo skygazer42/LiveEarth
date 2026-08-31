@@ -37,7 +37,15 @@ function useReducedMotion() {
   return reduced;
 }
 
-function GlobeScene({ entries, selectedIndex }: { entries: RankingEntry[]; selectedIndex: number }) {
+function GlobeScene({
+  entries,
+  selectedIndex,
+  onSelect,
+}: {
+  entries: RankingEntry[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+}) {
   const world = useRef<THREE.Group>(null);
   const reducedMotion = useReducedMotion();
   const selected = entries[selectedIndex] ?? entries[0];
@@ -75,6 +83,13 @@ function GlobeScene({ entries, selectedIndex }: { entries: RankingEntry[]; selec
     [],
   );
 
+  useEffect(
+    () => () => {
+      document.body.style.cursor = "";
+    },
+    [],
+  );
+
   return (
     <>
       <ambientLight intensity={0.42} />
@@ -104,7 +119,25 @@ function GlobeScene({ entries, selectedIndex }: { entries: RankingEntry[]; selec
           const point = latLngToVector(entry.scene.latitude, entry.scene.longitude, 1.025);
           const active = index === selectedIndex;
           return (
-            <group key={entry.scene.id} position={point}>
+            <group
+              key={entry.scene.id}
+              position={point}
+              onClick={(event) => {
+                event.stopPropagation();
+                onSelect(index);
+              }}
+              onPointerOver={(event) => {
+                event.stopPropagation();
+                document.body.style.cursor = "pointer";
+              }}
+              onPointerOut={() => {
+                document.body.style.cursor = "";
+              }}
+            >
+              <mesh>
+                <sphereGeometry args={[0.045, 16, 16]} />
+                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+              </mesh>
               <mesh scale={active ? 1.6 : 1}>
                 <sphereGeometry args={[active ? 0.018 : 0.011, 16, 16]} />
                 <meshBasicMaterial color={active ? "#ff755f" : "#e7dfcd"} />
@@ -124,14 +157,22 @@ function GlobeScene({ entries, selectedIndex }: { entries: RankingEntry[]; selec
   );
 }
 
-export function EarthGlobe({ entries, selectedIndex }: { entries: RankingEntry[]; selectedIndex: number }) {
+export function EarthGlobe({
+  entries,
+  selectedIndex,
+  onSelect,
+}: {
+  entries: RankingEntry[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+}) {
   return (
     <Canvas
       camera={{ position: [0, 0, 3.15], fov: 38 }}
       dpr={[1, 1.7]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
-      <GlobeScene entries={entries} selectedIndex={selectedIndex} />
+      <GlobeScene entries={entries} selectedIndex={selectedIndex} onSelect={onSelect} />
     </Canvas>
   );
 }

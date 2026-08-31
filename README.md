@@ -221,7 +221,7 @@ corepack pnpm build
 docker compose config
 ```
 
-当前基线已通过全仓 TypeScript 检查、ESLint、15 个 Vitest 用例、Next.js 生产构建，以及中英文首页 / 频道 / 场景的开发与生产烟测。
+当前基线已通过全仓 TypeScript 检查、ESLint、17 个 Vitest 用例、Next.js 生产构建，以及中英文首页 / 频道 / 场景的开发与生产烟测。
 
 ---
 

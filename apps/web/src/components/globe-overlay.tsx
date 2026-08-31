@@ -1,6 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
+import Link from "next/link";
 import type { Locale, RankingEntry } from "@liveearth/domain/types";
 import { channelLabel, formatCoordinates } from "@/lib/format";
 import { copy } from "@/lib/i18n";
@@ -36,10 +37,13 @@ export function GlobeOverlay({
           <span>{formatCoordinates(selected.scene.latitude, selected.scene.longitude)}</span>
           <span>{channelLabel(selected.scene.primaryChannel, locale)}</span>
         </div>
+        <Link className="globe-scene-link" href={`/${locale}/scene/${selected.scene.slug}`}>
+          {t.details} <ArrowUpRight aria-hidden="true" size={14} />
+        </Link>
       </div>
 
       <div className="globe-canvas" aria-hidden="true">
-        <EarthGlobe entries={entries} selectedIndex={selectedIndex} />
+        <EarthGlobe entries={entries} selectedIndex={selectedIndex} onSelect={onSelect} />
       </div>
 
       <ol className="globe-scene-strip" aria-label={t.list}>
@@ -48,6 +52,7 @@ export function GlobeOverlay({
             <button
               type="button"
               className={index === selectedIndex ? "is-active" : undefined}
+              aria-current={index === selectedIndex ? "true" : undefined}
               onClick={() => onSelect(index)}
             >
               <span>{String(entry.rank).padStart(2, "0")}</span>

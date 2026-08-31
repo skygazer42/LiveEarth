@@ -49,7 +49,10 @@ export function RankingRail({
                 <span className={`rank-trend rank-trend--${entry.trend}`} aria-label={entry.trend}>
                   {trendGlyph(entry.trend)}
                 </span>
-                <ChevronRight className="rank-chevron" aria-hidden="true" size={15} />
+                <span className="rank-action" aria-hidden="true">
+                  {active ? t.onAir : t.watch}
+                  <ChevronRight className="rank-chevron" size={13} />
+                </span>
               </button>
             </li>
           );

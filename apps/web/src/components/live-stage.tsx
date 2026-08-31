@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ArrowRight, Globe2, List, Pause, Play, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Globe2, List, MapPin, Pause, Play, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale, RankingSnapshot } from "@liveearth/domain/types";
 import { channelLabel, formatCoordinates, formatTime } from "@/lib/format";
@@ -28,6 +28,7 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
   const [touring, setTouring] = useState(true);
   const [muted, setMuted] = useState(true);
   const [globeOpen, setGlobeOpen] = useState(false);
+  const stageRef = useRef<HTMLElement>(null);
   const resumeTimer = useRef<number | null>(null);
   const { recordView } = useFavorites();
   const entries = currentSnapshot.entries;
@@ -56,6 +57,21 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
   const next = useCallback(
     (manual = true) => select(activeIndex + 1, manual),
     [activeIndex, select],
+  );
+
+  const selectFromRanking = useCallback(
+    (index: number) => {
+      select(index);
+      if (!window.matchMedia("(max-width: 760px)").matches) return;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.requestAnimationFrame(() => {
+        stageRef.current?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+    },
+    [select],
   );
 
   useEffect(() => {
@@ -97,7 +113,7 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
 
   return (
     <div className="broadcast-shell">
-      <section className="stage" aria-live="polite">
+      <section className="stage" aria-live="polite" ref={stageRef}>
         <div className="stage-media" key={scene.id}>
           <LivePlayer scene={scene} muted={muted} priority={activeIndex === 0} />
         </div>
@@ -117,17 +133,32 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
         </div>
 
         <div className="stage-caption">
-          <p className="stage-place">
+          <button
+            className="stage-place stage-location-button"
+            type="button"
+            onClick={() => setGlobeOpen(true)}
+            aria-label={`${t.viewOnGlobe}: ${scene.region}, ${scene.country}`}
+          >
+            <MapPin aria-hidden="true" size={12} />
             {scene.region} · {scene.country}
-          </p>
-          <h1>{scene.city}</h1>
+          </button>
+          <h1>
+            <Link href={`/${locale}/scene/${scene.slug}`}>{scene.city}</Link>
+          </h1>
           <p className="stage-title">{scene.title[locale]}</p>
           <div className="director-note">
             <span>{t.aiDirector}</span>
             <p>{reason}</p>
           </div>
           <div className="stage-meta">
-            <span>{formatCoordinates(scene.latitude, scene.longitude)}</span>
+            <button
+              className="stage-coordinate"
+              type="button"
+              onClick={() => setGlobeOpen(true)}
+              aria-label={`${t.viewOnGlobe}: ${formatCoordinates(scene.latitude, scene.longitude)}`}
+            >
+              {formatCoordinates(scene.latitude, scene.longitude)}
+            </button>
             <span>{scene.analysis.editorialScore.toFixed(1)} / 100</span>
             <Link href={`/${locale}/scene/${scene.slug}`}>
               {t.details} <ArrowRight aria-hidden="true" size={14} />
@@ -177,7 +208,12 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
         ) : null}
       </section>
 
-      <RankingRail entries={entries} selectedIndex={activeIndex} locale={locale} onSelect={select} />
+      <RankingRail
+        entries={entries}
+        selectedIndex={activeIndex}
+        locale={locale}
+        onSelect={selectFromRanking}
+      />
 
       <div className="mobile-stage-switcher" aria-hidden="true">
         <List size={14} /> {t.list}
@@ -191,7 +227,6 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
           onClose={() => setGlobeOpen(false)}
           onSelect={(index) => {
             select(index);
-            setGlobeOpen(false);
           }}
         />
       ) : null}
