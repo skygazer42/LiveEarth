@@ -1,5 +1,5 @@
 export const CHANNELS = ["earth", "storm", "ocean", "night"] as const;
-export const SCENE_CHANNELS = ["storm", "ocean", "night"] as const;
+export const SCENE_CHANNELS = ["earth", "storm", "ocean", "night"] as const;
 export const LOCALES = ["en", "zh"] as const;
 
 export type Channel = (typeof CHANNELS)[number];
@@ -8,7 +8,8 @@ export type Locale = (typeof LOCALES)[number];
 export type LocalizedText = Record<Locale, string>;
 
 export type StreamState = "live" | "degraded" | "offline";
-export type StreamKind = "hls" | "dash" | "image";
+export type StreamKind = "hls" | "dash" | "mp4" | "youtube" | "image";
+export type StreamMode = "live" | "near-live";
 
 export interface Attribution {
   name: string;
@@ -17,10 +18,14 @@ export interface Attribution {
 
 export interface StreamMedia {
   kind: StreamKind;
+  mode?: StreamMode;
   posterUrl: string;
   playbackUrl?: string;
   audio: boolean;
   demoOnly: boolean;
+  refreshIntervalSeconds?: number;
+  maxFrameAgeSeconds?: number;
+  fit?: "cover" | "contain";
   attribution: Attribution;
 }
 
@@ -54,6 +59,7 @@ export interface WeatherEvidence {
 }
 
 export interface SceneAnalysis {
+  method?: "vision" | "source-metadata";
   observedAt: string;
   expiresAt: string;
   channelScore: number;

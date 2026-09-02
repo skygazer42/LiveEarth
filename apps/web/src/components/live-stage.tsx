@@ -104,12 +104,13 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
   }, [activeIndex, next, select]);
 
   const localNow = entry
-    ? formatTime(entry.scene.health.checkedAt, locale, entry.scene.timezone)
+    ? formatTime(entry.scene.health.lastFrameAt, locale, entry.scene.timezone)
     : "";
 
   if (!entry) return <EmptyChannel channel="earth" locale={locale} />;
   const scene = entry.scene;
   const reason = scene.analysis.reason[locale];
+  const sourceDerived = scene.analysis.method === "source-metadata";
 
   return (
     <div className="broadcast-shell">
@@ -125,7 +126,7 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
 
         <div className="stage-topline">
           <span className="live-badge">
-            <i aria-hidden="true" /> {t.live}
+            <i aria-hidden="true" /> {scene.media.mode === "near-live" ? t.nearLive : t.live}
           </span>
           <span>{channelLabel(scene.primaryChannel, locale)}</span>
           <span>{localNow}</span>
@@ -147,7 +148,7 @@ export function LiveStage({ snapshot, locale }: { snapshot: RankingSnapshot; loc
           </h1>
           <p className="stage-title">{scene.title[locale]}</p>
           <div className="director-note">
-            <span>{t.aiDirector}</span>
+            <span>{sourceDerived ? t.sourceNote : t.aiDirector}</span>
             <p>{reason}</p>
           </div>
           <div className="stage-meta">

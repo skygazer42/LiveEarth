@@ -206,7 +206,7 @@ function SceneLibrary({ scenes, locale, compact = false }: { scenes: Scene[]; lo
       {scenes.map((scene, index) => (
         <Link href={`/${locale}/scene/${scene.slug}`} key={scene.id}>
           <div className="library-image">
-            <SceneImage src={scene.media.posterUrl} />
+            <SceneImage fit={scene.media.fit ?? "cover"} src={scene.media.posterUrl} />
             <span>{String(index + 1).padStart(2, "0")}</span>
           </div>
           <p>{scene.country}</p>

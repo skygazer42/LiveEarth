@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  agentRules: false,
   reactStrictMode: true,
+  serverExternalPackages: ["undici"],
   transpilePackages: ["@liveearth/domain"],
   experimental: {
     optimizePackageImports: ["lucide-react", "@react-three/drei"],

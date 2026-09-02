@@ -36,6 +36,7 @@ export default async function ScenePage({
   const [scene, allScenes] = await Promise.all([getSceneBySlug(slug), getAllScenes()]);
   if (!scene) notFound();
   const t = copy[locale];
+  const sourceDerived = scene.analysis.method === "source-metadata";
   const similar = allScenes
     .filter((candidate) => candidate.id !== scene.id && candidate.channels.some((channel) => scene.channels.includes(channel)))
     .slice(0, 3);
@@ -57,54 +58,89 @@ export default async function ScenePage({
             <p className="scene-title">{scene.title[locale]}</p>
             <div className="scene-score-lockup">
               <strong>{scene.analysis.editorialScore.toFixed(1)}</strong>
-              <span>{t.score}<br />Top signal</span>
+              <span>{sourceDerived ? t.availabilityScore : t.score}<br />Top signal</span>
             </div>
             <div className="scene-director-note">
               <p>{t.why}</p>
               <blockquote>{scene.analysis.reason[locale]}</blockquote>
-              <span>{Math.round(scene.analysis.confidence * 100)}% {t.confidence.toLowerCase()}</span>
+              <span>
+                {Math.round(scene.analysis.confidence * 100)}% {sourceDerived ? t.sourceConfidence.toLowerCase() : t.confidence.toLowerCase()}
+              </span>
             </div>
           </div>
         </section>
 
         <section className="scene-dossier">
           <div className="dossier-heading">
-            <p className="eyebrow">Live dossier · {formatTime(scene.analysis.observedAt, locale, scene.timezone)}</p>
-            <h2>{locale === "en" ? "What the director sees" : "导演看见了什么"}</h2>
+            <p className="eyebrow">
+              {sourceDerived ? (locale === "en" ? "Source check" : "来源检查") : "Live dossier"} · {formatTime(scene.analysis.observedAt, locale, scene.timezone)}
+            </p>
+            <h2>
+              {sourceDerived
+                ? (locale === "en" ? "Verified public feed" : "已验证公共数据源")
+                : (locale === "en" ? "What the director sees" : "导演看见了什么")}
+            </h2>
           </div>
           <div className="dossier-grid">
             <article>
-              <h3>{t.editorial}</h3>
+              <h3>{sourceDerived ? t.feedQuality : t.editorial}</h3>
               <ScoreBreakdown scores={scene.analysis.breakdown} locale={locale} />
             </article>
             <article className="condition-panel">
               <h3>{t.conditions}</h3>
-              <dl>
-                <div><dt>{locale === "en" ? "Temperature" : "温度"}</dt><dd>{scene.analysis.weather.temperatureC}°C</dd></div>
-                <div><dt>{locale === "en" ? "Wind" : "风速"}</dt><dd>{scene.analysis.weather.windKph} km/h</dd></div>
-                <div><dt>{locale === "en" ? "Rain" : "降水"}</dt><dd>{scene.analysis.weather.precipitationMm} mm</dd></div>
-                <div><dt>{locale === "en" ? "Cloud" : "云量"}</dt><dd>{scene.analysis.weather.cloudCoverPercent}%</dd></div>
-              </dl>
-              <p>Weather data · Open-Meteo</p>
+              {sourceDerived ? (
+                <dl>
+                  <div><dt>{locale === "en" ? "Captured" : "画面时间"}</dt><dd>{formatTime(scene.health.lastFrameAt, locale, scene.timezone)}</dd></div>
+                  <div><dt>{locale === "en" ? "Checked" : "核验时间"}</dt><dd>{formatTime(scene.health.checkedAt, locale, scene.timezone)}</dd></div>
+                  <div><dt>{locale === "en" ? "Cadence" : "更新周期"}</dt><dd>{scene.media.refreshIntervalSeconds ?? 0}s</dd></div>
+                  <div><dt>{locale === "en" ? "Format" : "格式"}</dt><dd>{scene.media.kind.toUpperCase()}</dd></div>
+                </dl>
+              ) : (
+                <dl>
+                  <div><dt>{locale === "en" ? "Temperature" : "温度"}</dt><dd>{scene.analysis.weather.temperatureC}°C</dd></div>
+                  <div><dt>{locale === "en" ? "Wind" : "风速"}</dt><dd>{scene.analysis.weather.windKph} km/h</dd></div>
+                  <div><dt>{locale === "en" ? "Rain" : "降水"}</dt><dd>{scene.analysis.weather.precipitationMm} mm</dd></div>
+                  <div><dt>{locale === "en" ? "Cloud" : "云量"}</dt><dd>{scene.analysis.weather.cloudCoverPercent}%</dd></div>
+                </dl>
+              )}
+              <p>
+                {sourceDerived
+                  ? (locale === "en" ? "Operator metadata · no inferred weather" : "运营方元数据 · 未推断天气")
+                  : "Weather data · Open-Meteo"}
+              </p>
             </article>
             <article className="camera-panel">
               <h3>{t.camera}</h3>
               <p>{scene.media.attribution.name}</p>
-              <p>{scene.health.bitrateKbps.toLocaleString()} kbps · {scene.health.latencyMs} ms</p>
+              <p>
+                {sourceDerived ? scene.media.kind.toUpperCase() : `${scene.health.bitrateKbps.toLocaleString()} kbps`} · {scene.health.latencyMs} ms
+              </p>
               <a href={scene.media.attribution.url} rel="noreferrer" target="_blank">
-                Source attribution <ExternalLink aria-hidden="true" size={13} />
+                {sourceDerived ? "Source & licence" : "Source attribution"} <ExternalLink aria-hidden="true" size={13} />
               </a>
             </article>
           </div>
         </section>
 
-        <section className="history-section">
-          <div>
-            <p className="eyebrow">{t.history}</p>
-            <h2>{locale === "en" ? "A scene gathering momentum" : "一幕正在积蓄势能"}</h2>
-          </div>
-          <ScoreChart points={scene.scoreHistory} locale={locale} />
-        </section>
+        {sourceDerived ? (
+          <section className="history-section source-evidence-section">
+            <div>
+              <p className="eyebrow">{locale === "en" ? "Source evidence" : "来源证据"}</p>
+              <h2>{locale === "en" ? "Why this feed is publishable" : "为什么这个信号可以发布"}</h2>
+            </div>
+            <ul className="source-evidence-list">
+              {scene.analysis.evidence.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </section>
+        ) : (
+          <section className="history-section">
+            <div>
+              <p className="eyebrow">{t.history}</p>
+              <h2>{locale === "en" ? "A scene gathering momentum" : "一幕正在积蓄势能"}</h2>
+            </div>
+            <ScoreChart points={scene.scoreHistory} locale={locale} />
+          </section>
+        )}
 
         {similar.length > 0 ? (
           <section className="similar-section">

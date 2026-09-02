@@ -19,7 +19,9 @@ export function ScenePlayerPanel({ scene, locale }: { scene: Scene; locale: Loca
     <div className="scene-player-panel">
       <LivePlayer scene={scene} muted={muted} priority />
       <div className="scene-player-status">
-        <span className="live-badge"><i aria-hidden="true" /> {t.live}</span>
+        <span className="live-badge">
+          <i aria-hidden="true" /> {scene.media.mode === "near-live" ? t.nearLive : t.live}
+        </span>
         {scene.media.demoOnly ? <span className="preview-badge">{t.preview}</span> : null}
       </div>
       <div className="scene-player-tools">

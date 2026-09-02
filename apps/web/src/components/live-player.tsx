@@ -11,13 +11,13 @@ export function LivePlayer({ scene, muted, priority = false }: { scene: Scene; m
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !playbackUrl || scene.media.kind === "image") return;
+    if (!video || !playbackUrl || scene.media.kind === "image" || scene.media.kind === "youtube") return;
     let cancelled = false;
     let destroy: (() => void) | undefined;
 
     async function attachStream() {
       if (!video || !playbackUrl) return;
-      if (video.canPlayType("application/vnd.apple.mpegurl") || scene.media.kind === "dash") {
+      if (scene.media.kind === "mp4" || video.canPlayType("application/vnd.apple.mpegurl") || scene.media.kind === "dash") {
         video.src = playbackUrl;
         await video.play().catch(() => undefined);
         return;
@@ -55,10 +55,27 @@ export function LivePlayer({ scene, muted, priority = false }: { scene: Scene; m
     if (videoRef.current) videoRef.current.muted = muted;
   }, [muted]);
 
+  if (scene.media.kind === "youtube" && playbackUrl) {
+    const embedUrl = new URL(playbackUrl);
+    embedUrl.searchParams.set("mute", muted ? "1" : "0");
+    return (
+      <div className="live-player live-player--embed" data-scene={scene.id}>
+        <iframe
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+          src={embedUrl.toString()}
+          title={`${scene.city} live camera`}
+        />
+        <span className="live-player-vignette" aria-hidden="true" />
+      </div>
+    );
+  }
+
   if (scene.media.kind === "image" || !playbackUrl || failed) {
     return (
       <div className="live-player live-player--still" data-scene={scene.id}>
-        <SceneImage priority={priority} src={scene.media.posterUrl} />
+        <SceneImage fit={scene.media.fit ?? "cover"} priority={priority} src={scene.media.posterUrl} />
         <span className="live-player-vignette" aria-hidden="true" />
         {failed ? <p className="player-error">Live stream unavailable — showing latest verified frame</p> : null}
       </div>
@@ -71,9 +88,13 @@ export function LivePlayer({ scene, muted, priority = false }: { scene: Scene; m
         ref={videoRef}
         aria-label={`${scene.city} live camera`}
         autoPlay
+        loop={scene.media.kind === "mp4"}
         muted={muted}
         playsInline
         poster={scene.media.posterUrl}
+        preload="metadata"
+        src={scene.media.kind === "mp4" ? playbackUrl : undefined}
+        style={{ objectFit: scene.media.fit ?? "cover" }}
         onError={() => setFailed(true)}
       />
       <span className="live-player-vignette" aria-hidden="true" />

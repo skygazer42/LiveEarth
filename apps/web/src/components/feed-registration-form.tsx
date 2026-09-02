@@ -111,7 +111,7 @@ export function FeedRegistrationForm({ locale }: { locale: Locale }) {
       </label>
       <fieldset>
         <legend>Channels</legend>
-        {(["storm", "ocean", "night"] as const).map((channel) => (
+        {(["earth", "storm", "ocean", "night"] as const).map((channel) => (
           <label className="check-label" key={channel}>
             <input checked={channels.includes(channel)} type="checkbox" onChange={() => toggleChannel(channel)} />
             {channel}

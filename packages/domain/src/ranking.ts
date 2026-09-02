@@ -18,6 +18,8 @@ const CHANNEL_WEIGHTS = {
 const MAX_PER_CHANNEL = 4;
 const MAX_PER_COUNTRY = 2;
 const FRESHNESS_WINDOW_MS = 10 * 60 * 1000;
+const MAX_NEAR_LIVE_FRAME_AGE_MS = 15 * 60 * 1000;
+const MAX_DECLARED_FRAME_AGE_MS = 6 * 60 * 60 * 1000;
 
 export function calculateChannelScore(breakdown: ScoreBreakdown): number {
   let score = 0;
@@ -45,9 +47,21 @@ export function isSceneEligible(scene: Scene, now = new Date()): boolean {
   if (scene.health.state !== "live") return false;
   const lastFrameAge = now.getTime() - new Date(scene.health.lastFrameAt).getTime();
   const analysisAge = now.getTime() - new Date(scene.analysis.observedAt).getTime();
+  const frameFreshnessWindow =
+    scene.media.mode === "near-live"
+      ? scene.media.maxFrameAgeSeconds
+        ? Math.min(
+            MAX_DECLARED_FRAME_AGE_MS,
+            Math.max(90_000, scene.media.maxFrameAgeSeconds * 1_000),
+          )
+        : Math.min(
+            MAX_NEAR_LIVE_FRAME_AGE_MS,
+            Math.max(90_000, (scene.media.refreshIntervalSeconds ?? 60) * 2 * 1_000),
+          )
+      : 90_000;
   return (
     lastFrameAge >= -30_000 &&
-    lastFrameAge <= 90_000 &&
+    lastFrameAge <= frameFreshnessWindow &&
     analysisAge >= -30_000 &&
     analysisAge <= FRESHNESS_WINDOW_MS
   );

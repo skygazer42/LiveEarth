@@ -9,7 +9,7 @@ export function SimilarScenes({ scenes, locale }: { scenes: Scene[]; locale: Loc
       {scenes.map((scene, index) => (
         <Link className="similar-scene" href={`/${locale}/scene/${scene.slug}`} key={scene.id}>
           <div className="similar-image">
-            <SceneImage src={scene.media.posterUrl} />
+            <SceneImage fit={scene.media.fit ?? "cover"} src={scene.media.posterUrl} />
             <span>{String(index + 1).padStart(2, "0")}</span>
           </div>
           <p>{scene.country} · {channelLabel(scene.primaryChannel, locale)}</p>

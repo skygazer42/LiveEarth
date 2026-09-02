@@ -46,6 +46,73 @@ describe("ranking domain", () => {
     ).toBe(false);
   });
 
+  it("uses the declared operator cadence for clearly labelled near-live frames", () => {
+    const now = new Date("2026-08-31T12:00:00.000Z");
+    const [scene] = createDemoScenes(now);
+    expect(scene).toBeDefined();
+    if (!scene) return;
+    const nearLive = {
+      ...scene,
+      media: {
+        ...scene.media,
+        kind: "image" as const,
+        mode: "near-live" as const,
+        refreshIntervalSeconds: 600,
+      },
+      health: {
+        ...scene.health,
+        lastFrameAt: new Date(now.getTime() - 9 * 60_000).toISOString(),
+      },
+    };
+    expect(isSceneEligible(nearLive, now)).toBe(true);
+    expect(
+      isSceneEligible(
+        {
+          ...nearLive,
+          health: {
+            ...nearLive.health,
+            lastFrameAt: new Date(now.getTime() - 16 * 60_000).toISOString(),
+          },
+        },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("supports an explicit age window for slower periodic public cameras", () => {
+    const now = new Date("2026-08-31T12:00:00.000Z");
+    const [scene] = createDemoScenes(now);
+    expect(scene).toBeDefined();
+    if (!scene) return;
+    const periodic = {
+      ...scene,
+      media: {
+        ...scene.media,
+        kind: "image" as const,
+        mode: "near-live" as const,
+        refreshIntervalSeconds: 3_600,
+        maxFrameAgeSeconds: 7_200,
+      },
+      health: {
+        ...scene.health,
+        lastFrameAt: new Date(now.getTime() - 90 * 60_000).toISOString(),
+      },
+    };
+    expect(isSceneEligible(periodic, now)).toBe(true);
+    expect(
+      isSceneEligible(
+        {
+          ...periodic,
+          health: {
+            ...periodic.health,
+            lastFrameAt: new Date(now.getTime() - 121 * 60_000).toISOString(),
+          },
+        },
+        now,
+      ),
+    ).toBe(false);
+  });
+
   it("avoids adjacent channels and caps country repetition", () => {
     const now = new Date("2026-08-31T12:00:00.000Z");
     const entries = rankScenes(createDemoScenes(now), { now });

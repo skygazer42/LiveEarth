@@ -320,7 +320,8 @@
   .stage-media,
   .live-player,
   .live-player img,
-  .live-player video {
+  .live-player video,
+  .live-player iframe {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -349,6 +350,15 @@
   .live-player img,
   .live-player video {
     object-fit: cover;
+  }
+
+  .live-player iframe {
+    border: 0;
+    background: var(--ink-1);
+  }
+
+  .live-player--embed .live-player-vignette {
+    pointer-events: none;
   }
 
   .live-player--still img {
@@ -1093,6 +1103,7 @@
   .channel-lead-shade {
     position: absolute;
     inset: 0;
+    pointer-events: none;
     background:
       linear-gradient(to top, var(--ink-0) 1%, transparent 55%),
       linear-gradient(to right, color-mix(in oklch, var(--ink-0) 78%, transparent), transparent 62%);
@@ -1613,6 +1624,21 @@
 
   .score-chart figcaption span:last-child {
     text-align: right;
+  }
+
+  .source-evidence-list {
+    display: grid;
+    gap: 0.8rem;
+    align-self: center;
+    color: var(--paper-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .source-evidence-list li {
+    padding: 0.85rem 1rem;
+    border-left: 2px solid var(--signal);
+    background: color-mix(in oklch, var(--paper) 4%, transparent);
   }
 
   .similar-section > .eyebrow {

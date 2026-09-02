@@ -53,8 +53,8 @@ export const feedRegistrationSchema = z
     timezone: z.string().min(1).max(80).refine(isValidTimezone, {
       message: "Timezone must be a valid IANA identifier",
     }),
-    primaryChannel: z.enum(["storm", "ocean", "night"]),
-    channels: z.array(z.enum(["storm", "ocean", "night"])).min(1),
+    primaryChannel: z.enum(["earth", "storm", "ocean", "night"]),
+    channels: z.array(z.enum(["earth", "storm", "ocean", "night"])).min(1),
     attribution: z.object({
       name: z.string().min(1).max(120),
       url: z.url(),

@@ -50,7 +50,7 @@ export class VisionAnalyzer {
       store: false,
       reasoning: { effort: "none" },
       instructions:
-        "You are LiveEarth's evidence-first picture editor. Judge only visible evidence and supplied weather fields. Never infer lightning, danger, rarity, or exact conditions that are not visible or present in weather data. Write one restrained documentary sentence in English and Simplified Chinese. Event intensity means weather drama for storm, wave/tidal activity for ocean, and atmosphere/light transition for night.",
+        "You are LiveEarth's evidence-first picture editor. Judge only visible evidence and supplied weather fields. Never infer lightning, danger, rarity, or exact conditions that are not visible or present in weather data. Write one restrained documentary sentence in English and Simplified Chinese. Event intensity means general visible activity for earth, weather drama for storm, wave/tidal activity for ocean, and atmosphere/light transition for night.",
       input: [
         {
           role: "user",

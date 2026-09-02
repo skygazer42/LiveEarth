@@ -5,10 +5,12 @@ export function SceneImage({
   src,
   alt = "",
   priority = false,
+  fit = "cover",
 }: {
   src: string;
   alt?: string;
   priority?: boolean;
+  fit?: "cover" | "contain";
 }) {
   return (
     <img
@@ -19,6 +21,7 @@ export function SceneImage({
       loading={priority ? "eager" : "lazy"}
       referrerPolicy="no-referrer"
       src={src}
+      style={{ objectFit: fit }}
     />
   );
 }

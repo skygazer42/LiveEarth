@@ -5,7 +5,8 @@ import { createClient } from "@supabase/supabase-js";
 import { createDemoRanking, createDemoScenes } from "@liveearth/domain/fixtures";
 import { isSceneEligible } from "@liveearth/domain/ranking";
 import type { Channel, GlobePoint, RankingSnapshot, Scene } from "@liveearth/domain/types";
-import { isDemoMode } from "./demo-mode";
+import { getDataMode } from "./demo-mode";
+import { createPublicRanking, getPublicFeedScenes } from "./public-feeds";
 
 function emptySnapshot(channel: Channel): RankingSnapshot {
   const now = new Date();
@@ -29,7 +30,9 @@ function serviceClient() {
 }
 
 export const getRankingSnapshot = cache(async (channel: Channel): Promise<RankingSnapshot> => {
-  if (isDemoMode()) return createDemoRanking(channel);
+  const mode = getDataMode();
+  if (mode === "demo") return createDemoRanking(channel);
+  if (mode === "public") return createPublicRanking(channel);
 
   const supabase = serviceClient();
   if (!supabase) return emptySnapshot(channel);
@@ -71,8 +74,13 @@ export const getRankingSnapshot = cache(async (channel: Channel): Promise<Rankin
 });
 
 export const getSceneBySlug = cache(async (slug: string): Promise<Scene | null> => {
-  if (isDemoMode()) {
+  const mode = getDataMode();
+  if (mode === "demo") {
     return createDemoScenes().find((scene) => scene.slug === slug) ?? null;
+  }
+  if (mode === "public") {
+    const scene = (await getPublicFeedScenes()).find((candidate) => candidate.slug === slug);
+    return scene && isSceneEligible(scene) ? scene : null;
   }
 
   const supabase = serviceClient();
@@ -104,7 +112,9 @@ export async function getGlobePoints(channel: Channel): Promise<GlobePoint[]> {
 }
 
 export async function getAllScenes(): Promise<Scene[]> {
-  if (isDemoMode()) return createDemoScenes();
+  const mode = getDataMode();
+  if (mode === "demo") return createDemoScenes();
+  if (mode === "public") return getPublicFeedScenes();
   const supabase = serviceClient();
   if (!supabase) return [];
   const { data, error } = await supabase

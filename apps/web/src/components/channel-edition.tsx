@@ -8,6 +8,7 @@ import { copy } from "@/lib/i18n";
 import { useRankingSnapshot } from "@/lib/use-ranking-snapshot";
 import { EmptyChannel } from "./empty-channel";
 import { FavoriteButton } from "./favorite-button";
+import { LivePlayer } from "./live-player";
 import { SceneImage } from "./scene-image";
 
 export function ChannelEdition({
@@ -27,10 +28,17 @@ export function ChannelEdition({
   return (
     <div className={`channel-edition channel-edition--${channel}`}>
       <section className="channel-lead">
-        <SceneImage priority src={lead.scene.media.posterUrl} />
+        {lead.scene.media.kind === "image" || !lead.scene.media.playbackUrl ? (
+          <SceneImage fit={lead.scene.media.fit ?? "cover"} priority src={lead.scene.media.posterUrl} />
+        ) : (
+          <LivePlayer scene={lead.scene} muted priority />
+        )}
         <span className="channel-lead-shade" aria-hidden="true" />
         <div className="channel-masthead">
-          <p className="eyebrow">{t.channelKicker} · {formatTimeLabel(currentSnapshot.generatedAt, locale)}</p>
+          <p className="eyebrow">
+            {t.channelKicker} · {lead.scene.media.mode === "near-live" ? t.nearLive : t.live} ·{" "}
+            {formatTimeLabel(currentSnapshot.generatedAt, locale)}
+          </p>
           <h1>Live{channel[0]?.toUpperCase()}{channel.slice(1)}</h1>
           <p>{t.channelDescription[channel]}</p>
         </div>
@@ -60,10 +68,13 @@ export function ChannelEdition({
             <li key={entry.scene.id}>
               <span className="channel-row-rank">{String(entry.rank).padStart(2, "0")}</span>
               <Link className="channel-row-image" href={`/${locale}/scene/${entry.scene.slug}`}>
-                <SceneImage src={entry.scene.media.posterUrl} />
+                <SceneImage fit={entry.scene.media.fit ?? "cover"} src={entry.scene.media.posterUrl} />
               </Link>
               <div className="channel-row-main">
-                <p>{entry.scene.country} · {channelLabel(entry.scene.primaryChannel, locale)}</p>
+                <p>
+                  {entry.scene.country} · {channelLabel(entry.scene.primaryChannel, locale)} ·{" "}
+                  {entry.scene.media.mode === "near-live" ? t.nearLive : t.live}
+                </p>
                 <h3>
                   <Link href={`/${locale}/scene/${entry.scene.slug}`}>{entry.scene.city}</Link>
                 </h3>

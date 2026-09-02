@@ -17,8 +17,8 @@ export function formatCoordinates(latitude: number, longitude: number): string {
 
 export function channelLabel(channel: SceneChannel, locale: Locale): string {
   const labels = {
-    en: { storm: "Storm", ocean: "Ocean", night: "Night" },
-    zh: { storm: "风暴", ocean: "海洋", night: "夜色" },
+    en: { earth: "Earth", storm: "Storm", ocean: "Ocean", night: "Night" },
+    zh: { earth: "地球", storm: "风暴", ocean: "海洋", night: "夜色" },
   } as const;
   return labels[locale][channel];
 }
